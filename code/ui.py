@@ -12,36 +12,42 @@ class UI:
 
         # controls
         self.general_options = ['attack', 'heal', 'switch', 'escape']
-        self.general_idx = {'col' : 0, 'row' : 0}
+        self.general_idx = {'col': 0, 'row': 0}
+        self.attack_idx = {'col': 0, 'row': 0}
         self.state = 'general'
+        self.rows, self.cols = 2, 2
 
 
     def input(self):
         keys = pygame.key.get_just_pressed()
-        self.general_idx['row'] = (self.general_idx['row'] + int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])) % 2
-        self.general_idx['col'] = (self.general_idx['col'] + int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])) % 2
+        if self.state == 'general':
+            self.general_idx['row'] = (self.general_idx['row'] + int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])) % 2
+            self.general_idx['col'] = (self.general_idx['col'] + int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])) % 2
+            if keys[pygame.K_SPACE]:
+                self.state = self.general_options[self.general_idx['col'] + self.general_idx['row'] * 2]
+        elif self.state == 'attack':
+            self.attack_idx['row'] = (self.attack_idx['row'] + int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])) % 2
+            self.attack_idx['col'] = (self.attack_idx['col'] + int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])) % 2
+            if keys[pygame.K_SPACE]:
+                self.state = self.monster.abilities[self.attack_idx['col'] + self.attack_idx['row'] * 2]
 
-        if keys[pygame.K_SPACE]:
-            self.state = self.general_options[self.general_idx['col'] + self.general_idx['row'] * 2]
 
-
-    def general(self):
+    def select_menu(self, index, options):
         # background
         rect = pygame.rect.FRect(self.left + 40, self.top + 60, 400, 200)
         pygame.draw.rect(self.display_surface, COLORS['white'], rect, 0, 4)
         pygame.draw.rect(self.display_surface, COLORS['gray'], rect, 4, 4)
 
         # menu
-        rows, cols = 2, 2
-        for col in range(cols):
-            for row in range(rows):
+        for col in range(self.cols):
+            for row in range(self.rows):
                 x = rect.left + rect.width / 4 + (rect.width / 2) * col
                 y = rect.top + rect.height / 4 + (rect.height / 2) * row
 
                 i = col + 2 * row
-                color = COLORS['gray'] if col == self.general_idx['col'] and row == self.general_idx['row'] else COLORS['black']
+                color = COLORS['gray'] if col == index['col'] and row == index['row'] else COLORS['black']
 
-                text_surf = self.font.render(self.general_options[i], True, color)
+                text_surf = self.font.render(options[i], True, color)
                 text_rect = text_surf.get_frect(center = (x, y))
                 self.display_surface.blit(text_surf, text_rect)
 
@@ -53,4 +59,6 @@ class UI:
     def draw(self):
         match self.state:
             case 'general':
-                self.general()
+                self.select_menu(self.general_idx, self.general_options)
+            case 'attack':
+                self.select_menu(self.attack_idx, self.monster.abilities)
