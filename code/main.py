@@ -28,7 +28,7 @@ class Game:
         self.opponent = Opponent(opponent_name, self.front_surfs[opponent_name], self.all_sprites)
 
         # ui
-        self.ui = UI(self.monster)
+        self.ui = UI(self.monster, self.player_monsters)
 
 
     def import_assets(self):
