@@ -13,12 +13,16 @@ class UI:
         # controls
         self.general_options = ['attack', 'heal', 'switch', 'escape']
         self.general_idx = {'col' : 0, 'row' : 0}
+        self.state = 'general'
 
 
     def input(self):
         keys = pygame.key.get_just_pressed()
-        self.general_idx['row'] += int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])
-        self.general_idx['col'] += int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])
+        self.general_idx['row'] = (self.general_idx['row'] + int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])) % 2
+        self.general_idx['col'] = (self.general_idx['col'] + int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])) % 2
+
+        if keys[pygame.K_SPACE]:
+            self.state = self.general_options[self.general_idx['col'] + self.general_idx['row'] * 2]
 
 
     def general(self):
@@ -35,8 +39,9 @@ class UI:
                 y = rect.top + rect.height / 4 + (rect.height / 2) * row
 
                 i = col + 2 * row
+                color = COLORS['gray'] if col == self.general_idx['col'] and row == self.general_idx['row'] else COLORS['black']
 
-                text_surf = self.font.render(self.general_options[i], True, 'black')
+                text_surf = self.font.render(self.general_options[i], True, color)
                 text_rect = text_surf.get_frect(center = (x, y))
                 self.display_surface.blit(text_surf, text_rect)
 
@@ -46,4 +51,6 @@ class UI:
 
 
     def draw(self):
-        self.general()
+        match self.state:
+            case 'general':
+                self.general()
