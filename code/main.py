@@ -52,6 +52,7 @@ class Game:
            
             # update
             self.all_sprites.update(dt)
+            self.ui.update()
 
             # draw
             self.display_surface.blit(self.bg_surfs['bg'], (0,0))
