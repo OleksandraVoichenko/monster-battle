@@ -4,53 +4,53 @@ from settings import *
 
 class UI:
     def __init__(self, monster, player_monsters):
-        self.display_surface = pygame.display.get_surface()
+        self.screen = pygame.display.get_surface()
         self.font = pygame.font.Font(None, 30)
         self.left = WINDOW_WIDTH / 2 - 100
         self.top = WINDOW_HEIGHT / 2 + 50
         self.monster = monster
-        self.player_monsters = player_monsters
+        self.pl_mon = player_monsters
 
         # controls
-        self.general_options = ['attack', 'heal', 'switch', 'escape']
-        self.general_index = {'col': 0, 'row': 0}
-        self.attack_index = {'col': 0, 'row': 0}
-        self.switch_index = 0
+        self.options = ['attack', 'heal', 'switch', 'escape']
+        self.gen_idx = {'col': 0, 'row': 0}
+        self.attack_idx = {'col': 0, 'row': 0}
+        self.sw_idx = 0
         self.state = 'general'
         self.rows, self.cols = 2, 2
-        self.visible_monsters = 4
-        self.available_monsters = [monster for monster in self.player_monsters
-                                   if monster != self.monster and monster.health > 0]
+        self.vis_mon = 4
+        self.avail_mon = [monster for monster in self.pl_mon
+                          if monster != self.monster and monster.health > 0]
 
 
     def input(self):
         keys = pygame.key.get_just_pressed()
         if self.state == 'general':
-            self.general_index['row'] = (self.general_index['row'] + int(keys[pygame.K_DOWN]) - int(
+            self.gen_idx['row'] = (self.gen_idx['row'] + int(keys[pygame.K_DOWN]) - int(
                 keys[pygame.K_UP])) % self.rows
-            self.general_index['col'] = (self.general_index['col'] + int(keys[pygame.K_RIGHT]) - int(
+            self.gen_idx['col'] = (self.gen_idx['col'] + int(keys[pygame.K_RIGHT]) - int(
                 keys[pygame.K_LEFT])) % self.cols
             if keys[pygame.K_SPACE]:
-                self.state = self.general_options[self.general_index['col'] + self.general_index['row'] * 2]
+                self.state = self.options[self.gen_idx['col'] + self.gen_idx['row'] * 2]
 
         elif self.state == 'attack':
-            self.attack_index['row'] = (self.attack_index['row'] + int(keys[pygame.K_DOWN]) - int(
+            self.attack_idx['row'] = (self.attack_idx['row'] + int(keys[pygame.K_DOWN]) - int(
                 keys[pygame.K_UP])) % self.rows
-            self.attack_index['col'] = (self.attack_index['col'] + int(keys[pygame.K_RIGHT]) - int(
+            self.attack_idx['col'] = (self.attack_idx['col'] + int(keys[pygame.K_RIGHT]) - int(
                 keys[pygame.K_LEFT])) % self.cols
             if keys[pygame.K_SPACE]:
-                print(self.monster.abilities[self.attack_index['col'] + self.attack_index['row'] * 2])
+                print(self.monster.abilities[self.attack_idx['col'] + self.attack_idx['row'] * 2])
 
         elif self.state == 'switch':
-            self.switch_index = ((self.switch_index + int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP]))
-                                 % len(self.available_monsters))
+            self.sw_idx = ((self.sw_idx + int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP]))
+                           % len(self.avail_mon))
 
 
     def select_menu(self, index, options):
         # background
         rect = pygame.FRect(self.left + 40, self.top + 60, 400, 200)
-        pygame.draw.rect(self.display_surface, COLORS['white'], rect, 0, 4)
-        pygame.draw.rect(self.display_surface, COLORS['gray'], rect, 4, 4)
+        pygame.draw.rect(self.screen, COLORS['white'], rect, 0, 4)
+        pygame.draw.rect(self.screen, COLORS['gray'], rect, 4, 4)
 
         # menu
         for col in range(self.cols):
@@ -62,31 +62,31 @@ class UI:
 
                 text_surf = self.font.render(options[i], True, color)
                 text_rect = text_surf.get_frect(center=(x, y))
-                self.display_surface.blit(text_surf, text_rect)
+                self.screen.blit(text_surf, text_rect)
 
 
     def switch(self):
         # background
         rect = pygame.FRect(self.left + 40, self.top - 100, 400, 400)
-        pygame.draw.rect(self.display_surface, COLORS['white'], rect, 0, 4)
-        pygame.draw.rect(self.display_surface, COLORS['gray'], rect, 4, 4)
+        pygame.draw.rect(self.screen, COLORS['white'], rect, 0, 4)
+        pygame.draw.rect(self.screen, COLORS['gray'], rect, 4, 4)
 
         # menu
-        v_offset = 0 if self.switch_index < self.visible_monsters \
-            else -(self.switch_index - self.visible_monsters + 1) * rect.height / self.visible_monsters
+        v_offset = 0 if self.sw_idx < self.vis_mon \
+            else -(self.sw_idx - self.vis_mon + 1) * rect.height / self.vis_mon
 
-        for i in range(len(self.available_monsters)):
+        for i in range(len(self.avail_mon)):
             x =rect.centerx
-            y = (rect.top + rect.height / (self.visible_monsters * 2) + rect.height
-                 / self.visible_monsters * i + v_offset)
+            y = (rect.top + rect.height / (self.vis_mon * 2) + rect.height
+                 / self.vis_mon * i + v_offset)
 
-            color = COLORS['gray'] if i == self.switch_index else COLORS['black']
-            name = self.available_monsters[i].name
+            color = COLORS['gray'] if i == self.sw_idx else COLORS['black']
+            name = self.avail_mon[i].name
 
             text_surf = self.font.render(name, True, color)
             text_rect = text_surf.get_frect(center = (x,y))
             if rect.collidepoint(text_rect.center):
-                self.display_surface.blit(text_surf, text_rect)
+                self.screen.blit(text_surf, text_rect)
 
 
     def update(self):
@@ -96,8 +96,8 @@ class UI:
     def draw(self):
         match self.state:
             case 'general':
-                self.select_menu(self.general_index, self.general_options)
+                self.select_menu(self.gen_idx, self.options)
             case 'attack':
-                self.select_menu(self.attack_index, self.monster.abilities)
+                self.select_menu(self.attack_idx, self.monster.abilities)
             case 'switch':
                 self.switch()
