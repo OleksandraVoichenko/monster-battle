@@ -15,9 +15,12 @@ class UI:
         self.general_options = ['attack', 'heal', 'switch', 'escape']
         self.general_index = {'col': 0, 'row': 0}
         self.attack_index = {'col': 0, 'row': 0}
+        self.switch_index = 0
         self.state = 'general'
         self.rows, self.cols = 2, 2
         self.visible_monsters = 4
+        self.available_monsters = [monster for monster in self.player_monsters
+                                   if monster != self.monster and monster.health > 0]
 
 
     def input(self):
@@ -37,6 +40,10 @@ class UI:
                 keys[pygame.K_LEFT])) % self.cols
             if keys[pygame.K_SPACE]:
                 print(self.monster.abilities[self.attack_index['col'] + self.attack_index['row'] * 2])
+
+        elif self.state == 'switch':
+            self.switch_index = ((self.switch_index + int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP]))
+                                 % len(self.available_monsters))
 
 
     def select_menu(self, index, options):
@@ -60,19 +67,26 @@ class UI:
 
     def switch(self):
         # background
-        rect = pygame.FRect(self.left + 40, self.top - 140, 400, 400)
+        rect = pygame.FRect(self.left + 40, self.top - 100, 400, 400)
         pygame.draw.rect(self.display_surface, COLORS['white'], rect, 0, 4)
         pygame.draw.rect(self.display_surface, COLORS['gray'], rect, 4, 4)
 
         # menu
-        for i in range(len(self.player_monsters)):
-            x =rect.centerx
-            y = rect.top + rect.height / (self.visible_monsters * 2) + rect.height / self.visible_monsters * i
+        v_offset = 0 if self.switch_index < self.visible_monsters \
+            else -(self.switch_index - self.visible_monsters + 1) * rect.height / self.visible_monsters
 
-            name = self.player_monsters[i].name
-            text_surf = self.font.render(name, True, 'black')
+        for i in range(len(self.available_monsters)):
+            x =rect.centerx
+            y = (rect.top + rect.height / (self.visible_monsters * 2) + rect.height
+                 / self.visible_monsters * i + v_offset)
+
+            color = COLORS['gray'] if i == self.switch_index else COLORS['black']
+            name = self.available_monsters[i].name
+
+            text_surf = self.font.render(name, True, color)
             text_rect = text_surf.get_frect(center = (x,y))
-            self.display_surface.blit(text_surf, text_rect)
+            if rect.collidepoint(text_rect.center):
+                self.display_surface.blit(text_surf, text_rect)
 
 
     def update(self):
