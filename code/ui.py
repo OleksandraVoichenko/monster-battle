@@ -21,13 +21,13 @@ class UI:
     def input(self):
         keys = pygame.key.get_just_pressed()
         if self.state == 'general':
-            self.general_idx['row'] = (self.general_idx['row'] + int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])) % 2
-            self.general_idx['col'] = (self.general_idx['col'] + int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])) % 2
+            self.general_idx['row'] = (self.general_idx['row'] + int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])) % self.rows
+            self.general_idx['col'] = (self.general_idx['col'] + int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])) % self.cols
             if keys[pygame.K_SPACE]:
                 self.state = self.general_options[self.general_idx['col'] + self.general_idx['row'] * 2]
         elif self.state == 'attack':
-            self.attack_idx['row'] = (self.attack_idx['row'] + int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])) % 2
-            self.attack_idx['col'] = (self.attack_idx['col'] + int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])) % 2
+            self.attack_idx['row'] = (self.attack_idx['row'] + int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])) % self.rows
+            self.attack_idx['col'] = (self.attack_idx['col'] + int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])) % self.cols
             if keys[pygame.K_SPACE]:
                 self.state = self.monster.abilities[self.attack_idx['col'] + self.attack_idx['row'] * 2]
 
@@ -41,8 +41,8 @@ class UI:
         # menu
         for col in range(self.cols):
             for row in range(self.rows):
-                x = rect.left + rect.width / 4 + (rect.width / 2) * col
-                y = rect.top + rect.height / 4 + (rect.height / 2) * row
+                x = rect.left + rect.width / self.cols * 2 + (rect.width / self.cols) * col
+                y = rect.top + rect.height / self.rows * 2 + (rect.height / self.rows) * row
 
                 i = col + 2 * row
                 color = COLORS['gray'] if col == index['col'] and row == index['row'] else COLORS['black']
