@@ -47,8 +47,9 @@ class UI:
                 self.state = 'general'
 
         elif self.state == 'switch':
-            self.sw_idx = ((self.sw_idx + int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP]))
-                           % len(self.avail_mon))
+            if self.avail_mon:
+                self.sw_idx = ((self.sw_idx + int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP]))
+                               % len(self.avail_mon))
             if keys[pygame.K_SPACE]:
                 self.get_input(self.state, self.avail_mon[self.sw_idx])
                 self.state = 'general'
@@ -138,6 +139,8 @@ class UI:
 
     def update(self):
         self.input()
+        self.avail_mon = [monster for monster in self.pl_mon if monster != self.monster
+                          and monster.health > 0]
 
 
     def draw(self):
@@ -161,7 +164,7 @@ class OpponentUI:
 
 
     def draw(self):
-        # backround
+        # background
         rect = pygame.rect.FRect((0, 0), (250, 80)).move_to(midleft = (500, self.monster.rect.centery))
         pygame.draw.rect(self.screen, COLORS['white'], rect, 0, 4)
         pygame.draw.rect(self.screen, COLORS['gray'], rect, 4, 4)

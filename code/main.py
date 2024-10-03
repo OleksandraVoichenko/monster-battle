@@ -1,7 +1,7 @@
 from settings import *
 from support import *
 from timer import Timer
-from monster import Monster, Opponent
+from monster import Monster, Opponent, Creature
 from random import choice
 from ui import UI, OpponentUI
 from attack import AttackAnimationSprite
@@ -44,6 +44,11 @@ class Game:
         elif state == 'heal':
             self.monster.health += 50
             AttackAnimationSprite(self.monster, self.attack_frames['green'], self.all_sprites)
+        elif state == ' switch':
+            self.monster.kill()
+            self.monster = data
+            self.all_sprites.add(self.monster)
+            self.ui.monster = self.monster
         elif state == 'escape':
             self.running = False
         self.player_active = False
@@ -58,13 +63,29 @@ class Game:
 
 
     def opponent_turn(self):
-        attack = choice(self.opponent.abilities)
-        self.apply_attack(self.monster, attack)
-        self.timers['opponent end'].activate()
+        if self.opponent.health <= 0:
+            self.player_active = True
+            self.opponent.kill()
+            monster_name = choice(list(MONSTER_DATA.keys()))
+            self.opponent = Opponent(monster_name, self.front_surfs[monster_name], self.all_sprites)
+            self.opp_ui.monster = self.opponent
+        else:
+            attack = choice(self.opponent.abilities)
+            self.apply_attack(self.monster, attack)
+            self.timers['opponent end'].activate()
 
 
     def player_turn(self):
         self.player_active = True
+        if self.monster.health <= 0:
+            avail_monsters = [monster for monster in self.player_monsters if monster.health > 0]
+            if avail_monsters:
+                self.monster.kill()
+                self.monster = avail_monsters[0]
+                self.all_sprites.add(self.monster)
+                self.ui.monster = self.monster
+        else:
+            self.running = False
 
 
     def update_timers(self):
@@ -78,12 +99,14 @@ class Game:
         self.front_surfs = folder_importer('..', 'images', 'front')
         self.simple_surfs = folder_importer('..', 'images', 'simple')
         self.attack_frames = tile_importer(4, '..', 'images', 'attacks')
+        self.audio = audio_importer('..', 'audio')
 
 
     def draw_floor(self):
         for sprite in self.all_sprites:
-            floor_rect = self.bg_surfs['floor'].get_frect(center = sprite.rect.midbottom + pygame.Vector2(0, -10))
-            self.display_surface.blit(self.bg_surfs['floor'], floor_rect)
+            if isinstance(sprite, Creature):
+                floor_rect = self.bg_surfs['floor'].get_frect(center = sprite.rect.midbottom + pygame.Vector2(0, -10))
+                self.display_surface.blit(self.bg_surfs['floor'], floor_rect)
 
 
     def run(self):
