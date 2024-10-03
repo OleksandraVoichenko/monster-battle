@@ -15,6 +15,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
         self.import_assets()
+        self.audio['music'].play(loops=-1)
         self.player_active = True
 
         # groups 
@@ -44,6 +45,7 @@ class Game:
         elif state == 'heal':
             self.monster.health += 50
             AttackAnimationSprite(self.monster, self.attack_frames['green'], self.all_sprites)
+            self.audio['green'].play()
         elif state == ' switch':
             self.monster.kill()
             self.monster = data
@@ -60,6 +62,7 @@ class Game:
         damage_mult = ELEMENT_DATA[attack_data['element']][target.element]
         target.health -= attack_data['damage'] * damage_mult
         AttackAnimationSprite(target, self.attack_frames[attack_data['animation']], self.all_sprites)
+        self.audio[attack_data['animation']].play()
 
 
     def opponent_turn(self):
