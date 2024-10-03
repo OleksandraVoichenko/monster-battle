@@ -11,6 +11,6 @@ class AttackAnimationSprite(pygame.sprite.Sprite):
     def update(self, dt):
         self.frame_idx += 5 * dt
         if self.frame_idx < len(self.frames):
-            self.image = self.frames[self.frame_idx]
+            self.image = self.frames[int(self.frame_idx)]
         else:
             self.kill()
