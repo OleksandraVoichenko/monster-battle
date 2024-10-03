@@ -46,19 +46,25 @@ class Game:
 
 
     def apply_attack(self, target, attack):
-        target.health -= 20
+        attack_data = ABILITIES_DATA[attack]
+        damage_mult = ELEMENT_DATA[attack_data['element']][target.element]
+        target.health -= attack_data['damage'] * damage_mult
 
 
     def opponent_turn(self):
-        pass
+        attack = choice(self.opponent.abilities)
+        self.apply_attack(self.monster, attack)
+        self.timers['opponent end'].activate()
+
 
     def player_turn(self):
-        pass
+        self.player_active = True
 
 
     def update_timers(self):
         for timer in self.timers.values():
             timer.update()
+
 
     def import_assets(self):
         self.back_surfs = folder_importer('..', 'images', 'back')
