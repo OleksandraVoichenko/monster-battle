@@ -1,26 +1,35 @@
-import pygame.sprite
-
 from settings import *
 from random import sample
 
 
 class Creature:
     def __init__(self):
+        self.rect = None
         self._health = None
 
+
     def get_data(self, name):
+        """Gets element of monster, monster health, available monster attacks, and monster name."""
+
         self.element = MONSTER_DATA[name]['element']
         self._health = self.max_health = MONSTER_DATA[name]['health']
         self.abilities = sample(list(ABILITIES_DATA.keys()), 4)
         self.name = name
 
+
     @property
     def health(self):
+        """Getter for the monster health."""
+
         return self._health
+
 
     @health.setter
     def health(self, value):
+        """Setter for a monster health."""
+
         self._health = min(self.max_health, max(0, value))
+
 
 class Monster(pygame.sprite.Sprite, Creature):
     def __init__(self, name, surf):
@@ -32,6 +41,7 @@ class Monster(pygame.sprite.Sprite, Creature):
 
 
     def __repr__(self):
+        """Returns monster name and health/max_health value"""
         return f'{self.name}, {self.health/self.max_health}'
 
 

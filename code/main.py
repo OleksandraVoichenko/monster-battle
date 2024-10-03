@@ -1,32 +1,34 @@
 from settings import *
 from support import *
+from monster import *
+from ui import *
 from timer import Timer
-from monster import Monster, Opponent, Creature
 from random import choice
-from ui import UI, OpponentUI
 from attack import AttackAnimationSprite
 
 
 class Game:
     def __init__(self):
+        # game setup
         pygame.init()
-        self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+        self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption('Monster Battle')
         self.clock = pygame.time.Clock()
         self.running = True
+
+        # images and audio
         self.import_assets()
         self.audio['music'].play(loops=-1)
-        self.player_active = True
 
         # groups 
         self.all_sprites = pygame.sprite.Group()
 
         # data
+        self.player_active = True
         player_monster_list = ['Sparchu', 'Cleaf', 'Jacana', 'Finsta', 'Plumette', 'Gulfin']
         self.player_monsters = [Monster(name, self.back_surfs[name]) for name in player_monster_list]
         self.monster = self.player_monsters[0]
         self.all_sprites.add(self.monster)
-
         opponent_name = choice(list(MONSTER_DATA.keys()))
         self.opponent = Opponent(opponent_name, self.front_surfs[opponent_name], self.all_sprites)
 
@@ -40,6 +42,9 @@ class Game:
 
 
     def get_input(self, state, data = None):
+        """Calls on logic for each of menu buttons: attack, heal, switch, and escape.
+        Activates timer for player."""
+
         if state == 'attack':
             self.apply_attack(self.opponent, data)
         elif state == 'heal':
@@ -58,6 +63,9 @@ class Game:
 
 
     def apply_attack(self, target, attack):
+        """Creates attack damage based on attack and monster elements.
+        Applies damage to target health. And starts attack animation & audio."""
+
         attack_data = ABILITIES_DATA[attack]
         damage_mult = ELEMENT_DATA[attack_data['element']][target.element]
         target.health -= attack_data['damage'] * damage_mult
@@ -66,6 +74,9 @@ class Game:
 
 
     def opponent_turn(self):
+        """Checks is opponent has died - > chooses another monster for the opponent.
+        If opponent is alive, opponent applies random attack. And timer for opponent."""
+
         if self.opponent.health <= 0:
             self.player_active = True
             self.opponent.kill()
@@ -79,6 +90,10 @@ class Game:
 
 
     def player_turn(self):
+        """Checks if player monster is alive.
+        If monster dies, new monster appears from available player list.
+        If list is empty, game stops."""
+
         self.player_active = True
         if self.monster.health <= 0:
             avail_monsters = [monster for monster in self.player_monsters if monster.health > 0]
@@ -92,11 +107,15 @@ class Game:
 
 
     def update_timers(self):
+        """Updates timers."""
+
         for timer in self.timers.values():
             timer.update()
 
 
     def import_assets(self):
+        """Imports assets like images and audio from the custom path."""
+
         self.back_surfs = folder_importer('..', 'images', 'back')
         self.bg_surfs = folder_importer('..', 'images', 'other')
         self.front_surfs = folder_importer('..', 'images', 'front')
@@ -106,13 +125,17 @@ class Game:
 
 
     def draw_floor(self):
+        """Draws floor image below the player and opponent monsters on screen."""
+
         for sprite in self.all_sprites:
             if isinstance(sprite, Creature):
                 floor_rect = self.bg_surfs['floor'].get_frect(center = sprite.rect.midbottom + pygame.Vector2(0, -10))
-                self.display_surface.blit(self.bg_surfs['floor'], floor_rect)
+                self.screen.blit(self.bg_surfs['floor'], floor_rect)
 
 
     def run(self):
+        """Runs game man loop."""
+
         while self.running:
             dt = self.clock.tick() / 1000
             for event in pygame.event.get():
@@ -126,15 +149,16 @@ class Game:
                 self.ui.update()
 
             # draw
-            self.display_surface.blit(self.bg_surfs['bg'], (0,0))
+            self.screen.blit(self.bg_surfs['bg'], (0, 0))
             self.draw_floor()
-            self.all_sprites.draw(self.display_surface)
+            self.all_sprites.draw(self.screen)
             self.ui.draw()
             self.opp_ui.draw()
             pygame.display.update()
         
         pygame.quit()
-    
+
+
 if __name__ == '__main__':
     game = Game()
     game.run()

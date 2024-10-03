@@ -9,6 +9,8 @@ class AttackAnimationSprite(pygame.sprite.Sprite):
 
 
     def update(self, dt):
+        """Updates attack animation by changing frames."""
+
         self.frame_idx += 5 * dt
         if self.frame_idx < len(self.frames):
             self.image = self.frames[int(self.frame_idx)]

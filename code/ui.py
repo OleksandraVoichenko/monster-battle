@@ -27,7 +27,12 @@ class UI:
 
 
     def input(self):
+        """Method checks if buttons on menu are pressed.
+        Each of the buttons calls on either heal, attack, switch, or escape functionality."""
+
         keys = pygame.key.get_just_pressed()
+
+        # general options menu
         if self.state == 'general':
             self.gen_idx['row'] = (self.gen_idx['row'] + int(keys[pygame.K_DOWN]) - int(
                 keys[pygame.K_UP])) % self.rows
@@ -36,6 +41,7 @@ class UI:
             if keys[pygame.K_SPACE]:
                 self.state = self.options[self.gen_idx['col'] + self.gen_idx['row'] * 2]
 
+        # attack menu
         elif self.state == 'attack':
             self.attack_idx['row'] = (self.attack_idx['row'] + int(keys[pygame.K_DOWN]) - int(
                 keys[pygame.K_UP])) % self.rows
@@ -46,6 +52,7 @@ class UI:
                 self.get_input(self.state, attack)
                 self.state = 'general'
 
+        # switch menu
         elif self.state == 'switch':
             if self.avail_mon:
                 self.sw_idx = ((self.sw_idx + int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP]))
@@ -54,13 +61,16 @@ class UI:
                 self.get_input(self.state, self.avail_mon[self.sw_idx])
                 self.state = 'general'
 
+        # heal button
         elif self.state == 'heal':
             self.get_input('heal')
             self.state = 'general'
 
+        # escape button
         elif self.state == 'escape':
             self.get_input('escape')
 
+        # ESC click on menu
         if keys[pygame.K_ESCAPE]:
             self.state = 'general'
             self.gen_idx = {'col': 0, 'row': 0}
@@ -69,6 +79,9 @@ class UI:
 
 
     def select_menu(self, index, options):
+        """Base menu with 4 base options: attack, heal, switch, escape.
+        Draws the rectangle and adds functionality to it based on amount of rows and columns."""
+
         # background
         rect = pygame.FRect(self.left + 40, self.top + 60, 400, 200)
         pygame.draw.rect(self.screen, COLORS['white'], rect, 0, 4)
@@ -88,6 +101,10 @@ class UI:
 
 
     def switch(self):
+        """Adds switch menu. WIth ability to switch monsters.
+        Every option gets a small simple image of monster + its name.
+        Plus, added functionality of scrolling."""
+
         # background
         rect = pygame.FRect(self.left + 40, self.top - 100, 400, 400)
         pygame.draw.rect(self.screen, COLORS['white'], rect, 0, 4)
@@ -115,6 +132,8 @@ class UI:
 
 
     def stats(self):
+        """Draws health progress bar on screen. And adds dynamic change to the value."""
+
         # background
         rect = pygame.rect.FRect(self.left, self.top, 250, 80)
         pygame.draw.rect(self.screen, COLORS['white'], rect, 0, 4)
@@ -132,18 +151,25 @@ class UI:
 
 
     def draw_bar(self, rect, value, max_value):
+        """Draws red progress bar with health value out of max health."""
+
         ration = rect.width / max_value
         progress_rect = pygame.rect.FRect(rect.topleft, (value * ration, rect.height))
         pygame.draw.rect(self.screen, COLORS['red'], progress_rect)
 
 
     def update(self):
+        """Updates input to the menu and button presses.
+        Updates the list of available monsters that can still be played."""
+
         self.input()
         self.avail_mon = [monster for monster in self.pl_mon if monster != self.monster
                           and monster.health > 0]
 
 
     def draw(self):
+        """Draws menu for each of the buttons - general, attack, switch."""
+
         match self.state:
             case 'general':
                 self.select_menu(self.gen_idx, self.options)
@@ -164,6 +190,8 @@ class OpponentUI:
 
 
     def draw(self):
+        """Draws opponent's health progress bar."""
+
         # background
         rect = pygame.rect.FRect((0, 0), (250, 80)).move_to(midleft = (500, self.monster.rect.centery))
         pygame.draw.rect(self.screen, COLORS['white'], rect, 0, 4)

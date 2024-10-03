@@ -1,8 +1,9 @@
 import pygame.rect
-
 from settings import *
 
 def folder_importer(*path):
+    """Imports images from the folder of the custom path."""
+
     surfs = {}
     for folder_path, _, file_names in walk(join(*path)):
         for file_name in file_names:
@@ -10,7 +11,10 @@ def folder_importer(*path):
             surfs[file_name.split('.')[0]] = pygame.image.load(full_path).convert_alpha()
     return surfs
 
+
 def audio_importer(*path):
+    """Imports audio from the folder of the custom parts."""
+
     audio_dict = {}
     for folder_path, _, file_names in walk(join(*path)):
         for file_name in file_names:
@@ -19,6 +23,8 @@ def audio_importer(*path):
 
 
 def tile_importer(cols, *path):
+    """Imports animation frames .png tile and cuts it into individual frames."""
+
     attack_frames = {}
     for folder_path, _, file_names in walk(join(*path)):
         for file_name in file_names:
