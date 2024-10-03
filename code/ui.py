@@ -113,6 +113,22 @@ class UI:
                 self.screen.blit(m_img_surf, m_img_rect)
 
 
+    def stats(self):
+        # background
+        rect = pygame.rect.FRect(self.left, self.top, 250, 80)
+        pygame.draw.rect(self.screen, COLORS['white'], rect, 0, 4)
+        pygame.draw.rect(self.screen, COLORS['gray'], rect, 4, 4)
+
+        # data
+        name_surf = self.font.render(self.monster.name, True, COLORS['black'])
+        name_rect = name_surf.get_frect(topleft = rect.topleft + pygame.Vector2(rect.width * 0.05, 12))
+        self.screen.blit(name_surf, name_rect)
+
+        # health bar
+        health_rect = pygame.rect.FRect(name_rect.left, name_rect.bottom + 10, rect.width * 0.9, 20)
+        pygame.draw.rect(self.screen, COLORS['gray'], health_rect)
+
+
     def update(self):
         self.input()
 
@@ -125,3 +141,6 @@ class UI:
                 self.select_menu(self.attack_idx, self.monster.abilities)
             case 'switch':
                 self.switch()
+
+        if self.state != 'switch':
+            self.stats()
