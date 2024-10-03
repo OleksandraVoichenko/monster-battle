@@ -1,4 +1,6 @@
-from settings import * 
+import pygame.rect
+
+from settings import *
 
 def folder_importer(*path):
     surfs = {}
@@ -14,3 +16,17 @@ def audio_importer(*path):
         for file_name in file_names:
             audio_dict[file_name.split('.')[0]] = pygame.mixer.Sound(join(folder_path, file_name))
     return audio_dict
+
+
+def tile_importer(cols, *path):
+    attack_frames = {}
+    for folder_path, _, file_names in walk(join(*path)):
+        for file_name in file_names:
+            full_path = join(folder_path, file_name)
+            surf = pygame.image.load(full_path).convert_alpha()
+            attack_frames[file_name.split('.')[0]] = []
+            cutout_w = surf.get_width() / cols
+            for col in range(cols):
+                cutout_surf = pygame.Surface((cutout_w, surf.get_height()))
+                cutout_rect = pygame.rect.FRect(cutout_w * col, 0,cutout_w, surf.get_height())
+                cutout_surf.blit(surf, (0,0), cutout_rect)

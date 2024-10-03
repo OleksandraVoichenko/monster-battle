@@ -3,7 +3,8 @@ from support import *
 from timer import Timer
 from monster import Monster, Opponent
 from random import choice
-from ui import UI
+from ui import UI, OpponentUI
+from attack import AttackAnimationSprite
 
 
 class Game:
@@ -30,6 +31,7 @@ class Game:
 
         # ui
         self.ui = UI(self.monster, self.player_monsters, self.simple_surfs, self.get_input)
+        self.opp_ui = OpponentUI(self.opponent)
 
         # timers
         self.timers = {'player end': Timer(1000, func = self.opponent_turn),
@@ -49,6 +51,7 @@ class Game:
         attack_data = ABILITIES_DATA[attack]
         damage_mult = ELEMENT_DATA[attack_data['element']][target.element]
         target.health -= attack_data['damage'] * damage_mult
+        AttackAnimationSprite(target, self.attack_frames[attack], self.all_sprites)
 
 
     def opponent_turn(self):
@@ -71,6 +74,7 @@ class Game:
         self.bg_surfs = folder_importer('..', 'images', 'other')
         self.front_surfs = folder_importer('..', 'images', 'front')
         self.simple_surfs = folder_importer('..', 'images', 'simple')
+        self.attack_frames = tile_importer(4, '..', 'images', 'attacks')
 
 
     def draw_floor(self):
@@ -97,6 +101,7 @@ class Game:
             self.draw_floor()
             self.all_sprites.draw(self.display_surface)
             self.ui.draw()
+            self.opp_ui.draw()
             pygame.display.update()
         
         pygame.quit()
