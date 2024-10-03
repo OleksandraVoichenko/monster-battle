@@ -1,15 +1,17 @@
 import pygame
+from support import folder_importer
 
 from settings import *
 
 class UI:
-    def __init__(self, monster, player_monsters):
+    def __init__(self, monster, player_monsters, simple_surfs):
         self.screen = pygame.display.get_surface()
         self.font = pygame.font.Font(None, 30)
         self.left = WINDOW_WIDTH / 2 - 100
         self.top = WINDOW_HEIGHT / 2 + 50
         self.monster = monster
         self.pl_mon = player_monsters
+        self.simple_surfs = simple_surfs
 
         # controls
         self.options = ['attack', 'heal', 'switch', 'escape']
@@ -83,10 +85,13 @@ class UI:
             color = COLORS['gray'] if i == self.sw_idx else COLORS['black']
             name = self.avail_mon[i].name
 
+            m_img_surf = self.simple_surfs[name]
+            m_img_rect = m_img_surf.get_frect(center = (x - 120, y))
             text_surf = self.font.render(name, True, color)
             text_rect = text_surf.get_frect(center = (x,y))
             if rect.collidepoint(text_rect.center):
                 self.screen.blit(text_surf, text_rect)
+                self.screen.blit(m_img_surf, m_img_rect)
 
 
     def update(self):
