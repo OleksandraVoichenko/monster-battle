@@ -27,6 +27,8 @@ def tile_importer(cols, *path):
             attack_frames[file_name.split('.')[0]] = []
             cutout_w = surf.get_width() / cols
             for col in range(cols):
-                cutout_surf = pygame.Surface((cutout_w, surf.get_height()))
+                cutout_surf = pygame.Surface((cutout_w, surf.get_height()), pygame.SRCALPHA)
                 cutout_rect = pygame.rect.FRect(cutout_w * col, 0,cutout_w, surf.get_height())
                 cutout_surf.blit(surf, (0,0), cutout_rect)
+                attack_frames[file_name.split('.')[0]].append(cutout_surf)
+    return attack_frames

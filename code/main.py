@@ -41,6 +41,9 @@ class Game:
     def get_input(self, state, data = None):
         if state == 'attack':
             self.apply_attack(self.opponent, data)
+        elif state == 'heal':
+            self.monster.health += 50
+            AttackAnimationSprite(self.monster, self.attack_frames['green'], self.all_sprites)
         elif state == 'escape':
             self.running = False
         self.player_active = False
@@ -51,7 +54,7 @@ class Game:
         attack_data = ABILITIES_DATA[attack]
         damage_mult = ELEMENT_DATA[attack_data['element']][target.element]
         target.health -= attack_data['damage'] * damage_mult
-        AttackAnimationSprite(target, self.attack_frames[attack], self.all_sprites)
+        AttackAnimationSprite(target, self.attack_frames[attack_data['animation']], self.all_sprites)
 
 
     def opponent_turn(self):
