@@ -46,6 +46,15 @@ class UI:
         elif self.state == 'switch':
             self.sw_idx = ((self.sw_idx + int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP]))
                            % len(self.avail_mon))
+            if keys[pygame.K_SPACE]:
+                print(self.avail_mon[self.sw_idx])
+
+
+        if keys[pygame.K_ESCAPE]:
+            self.state = 'general'
+            self.gen_idx = {'col': 0, 'row': 0}
+            self.attack_idx = {'col': 0, 'row': 0}
+            self.sw_idx = 0
 
 
     def select_menu(self, index, options):
